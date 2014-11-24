@@ -13,4 +13,8 @@ public class GolfCartStatus
           System.out.println("GolfCartStatus: " + s);
      }
      private String incoming;
+     public String getString()
+     {
+     	return incoming;
+     }
 }
