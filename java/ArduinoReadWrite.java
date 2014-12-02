@@ -7,10 +7,10 @@ import gnu.io.SerialPort;
 
 public class ArduinoReadWrite
 {
-     public ArduinoReadWrite(GolfCartStatus s) 
+     public ArduinoReadWrite(cartinfo s) 
      {
           super();
-          status = s;
+          fromarduino = s;
      }
      void connect (String portName) throws Exception 
      {
@@ -30,7 +30,7 @@ public class ArduinoReadWrite
 
                     InputStream in = serialPort.getInputStream();
                     outputStream = serialPort.getOutputStream();
-                    (new Thread(new ArduinoReaderThread(in,status))).start();
+                    (new Thread(new ArduinoReaderThread(in,fromarduino))).start();
                     (new Thread(new ArduinoWriterThread(outputStream))).start();
 
                } 
@@ -47,6 +47,5 @@ public class ArduinoReadWrite
      }
 
      private OutputStream outputStream;
-     private GolfCartStatus status;
+     private cartinfo fromarduino;
 }
-

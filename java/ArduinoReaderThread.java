@@ -7,14 +7,14 @@ import java.io.IOException;
 public class ArduinoReaderThread implements Runnable 
 {
      private InputStream in;
-     private BufferedReader reader; 
-     private GolfCartStatus status;
+     private BufferedReader reader;
+     private cartinfo incoming;
 
-     public ArduinoReaderThread ( InputStream in, GolfCartStatus s)
+     public ArduinoReaderThread ( InputStream in, cartinfo s)
      {
-          status = s;
           this.in = in;
           this.reader = new BufferedReader(new InputStreamReader(in));
+          incoming = s;
      }
 
      public void run ()
@@ -25,7 +25,7 @@ public class ArduinoReaderThread implements Runnable
                while ((line = reader.readLine()) != null) 
                {
                     System.out.println("incoming " + line.length() + " characters: \"" + line + "\"");
-                    status.setIncoming(line);
+                    incoming.setData(line);
                }
           }
           catch ( IOException e )

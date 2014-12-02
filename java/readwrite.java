@@ -1,6 +1,5 @@
 import java.util.*;
 import java.io.*;
-import java.net.*;
 
 /*
  * to compile:
@@ -11,7 +10,7 @@ import java.net.*;
  * for example, -Dgnu.io.rxtx.SerialPorts=/dev/ttyACM0:/dev/ttyS8:/dev/<your serial port name here>
  * 
  * to run:
- * java -cp /usr/share/java/RXTXcomm.jar:. -Dgnu.io.rxtx.SerialPorts=/dev/ttyACM0    ArduinoReadWrite
+ * java -cp /usr/share/java/RXTXcomm.jar:. -Dgnu.io.rxtx.SerialPorts=/dev/ttyACM0    readwrite
  * 
  * You'll need the RXTX library installed, and then specify
  * the path to the RXTXcomm.jar file.  Depending your linux distro, 
@@ -22,20 +21,33 @@ import java.net.*;
  * out to the serial port.  Use this arduino code to test this java program.
  */
 
-public class readwrite
-{ 
+public class readwrite 
+{
      public static void main(String[] args)
      {
-          GolfCartStatus thestatus = new GolfCartStatus();
           BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-          String input = "";
           
           String port = "/dev/ttyACM0";
-          port = "/dev/tty.usbmodem1411";
+          //port = "/dev/tty.usbmodem1411";
           String consoleReaderName = "Reader";
+          
+          /* change this and put the full path to the file!!
+           * /var/www/mainsite/data/comFile.txt  i believe is the name of the file
+           * 
+           * that the web page writes what command to execute.  
+           * the web page backend should be changed so that the remote and script radio
+           * buttons writes to this same file.  This program can handle both remote and script
+           * now.
+           */
+          
+          String comfile = "/home/student/public_html/data/comFile.txt";
+          File thefile = new File(comfile);
+          
+          cartinfo info = new cartinfo();
+          
           try 
           {
-               ArduinoReadWrite arduino = new ArduinoReadWrite(thestatus);
+               ArduinoReadWrite arduino = new ArduinoReadWrite(info);
                arduino.connect(port);
                OutputStream arduinoStream = arduino.getTheStream();
                
@@ -45,18 +57,19 @@ public class readwrite
                consoleReader1.start();
                System.out.println("port: " + port + " ready");
                
-               //start the event timer
-               //mytimer t = new mytimer(mywriter,reader,1); //how many seconds
-               
-               Timer filetimer = new Timer();
-		  	   filetimer.schedule(new checkfile(mywriter), 0, 1000);
-		  	   
+               //create an object that actually reads the file and then does the work
+               DoWork processcommands = new DoWork(thefile, mywriter, info);
+	//	runscript x = new runscript(mywriter, info);
+               //monitor the file
+          
+               TimerTask t = new filewatcher(thefile,processcommands);
+
+               Timer thetimer = new Timer();
+               thetimer.schedule(t,new Date(),1000);
           }
           catch ( Exception e )
           {
                e.printStackTrace();
           }
-		  
      }//end main
-}//end class readwrite
-
+}//end readwrite
